@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  name         String
+  location     String
+  partyOwnerId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  partyOwner   PartyOwner?   @relation(fields: [partyOwnerId], references: [id], onDelete: SetNull)
+  documentData DocumentData?
+
+  @@index([name])
+}
+
+model PartyOwner {
+  id   String @id @default(cuid())
+  name String
+
+  documents             Document[]
+  documentsMovementFrom DocumentMovements[] @relation("fromParty")
+  documentsMovementTo   DocumentMovements[] @relation("toParty")
+  partyOwnerAddress     PartyOwnerAddress?
+
+  @@index([name])
+}
+
+model PartyOwnerAddress {
+  id           String @id @default(cuid())
+  country      String
+  city         String
+  street       String
+  houseNo      Int
+  partyOwnerId String @unique()
+
+  partyOwner PartyOwner @relation(fields: [partyOwnerId], references: [id], onDelete: Cascade)
+
+  @@index([country])
+  @@index([city])
+  @@index([street])
+  @@index([partyOwnerId])
+  @@index([houseNo])
+}
+
+model DocumentMovements {
+  id          String   @id @default(cuid())
+  fromPartyId String?
+  toPartyId   String?
+  movedAt     DateTime @default(now())
+
+  fromParty PartyOwner? @relation("fromParty", fields: [fromPartyId], references: [id], onDelete: Cascade)
+  toParty   PartyOwner? @relation("toParty", fields: [toPartyId], references: [id], onDelete: Cascade)
+
+  @@index([fromPartyId, toPartyId])
+}
+
+model DocumentData {
+  id         String @id @default(cuid())
+  data       Bytes
+  documentId String @unique()
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
