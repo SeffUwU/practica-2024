@@ -36,6 +36,7 @@ CREATE TABLE "DocumentMovements" (
     "fromPartyId" TEXT,
     "toPartyId" TEXT,
     "movedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "documentId" TEXT,
 
     CONSTRAINT "DocumentMovements_pkey" PRIMARY KEY ("id")
 );
@@ -90,6 +91,9 @@ ALTER TABLE "DocumentMovements" ADD CONSTRAINT "DocumentMovements_fromPartyId_fk
 
 -- AddForeignKey
 ALTER TABLE "DocumentMovements" ADD CONSTRAINT "DocumentMovements_toPartyId_fkey" FOREIGN KEY ("toPartyId") REFERENCES "PartyOwner"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "DocumentMovements" ADD CONSTRAINT "DocumentMovements_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "Document"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "DocumentData" ADD CONSTRAINT "DocumentData_documentId_fkey" FOREIGN KEY ("documentId") REFERENCES "Document"("id") ON DELETE CASCADE ON UPDATE CASCADE;
